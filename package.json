@@ -2,7 +2,10 @@
   "name": "dicey",
   "main": "gulpfile.js",
   "version": "1.0.0",
-  "keywords": ["random", "xquery"],
+  "keywords": [
+    "random",
+    "xquery"
+  ],
   "description": "Just a bunch of random functions",
   "homepage": "https://github.com/line-o/dicey#readme",
   "bugs": "https://github.com/line-o/dicey/issues",
