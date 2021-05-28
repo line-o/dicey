@@ -111,7 +111,7 @@ dicey:sequence(1,
 
 ## Compatibility
 
-While the primary target is eXistdb the [library module](src/content/dicey.xqm) itself should be compatible with any XQuery 3.1 runtime (e.g. saxon 10, baseX 9.5.x).
+While the primary target is eXistdb (starting from version 5.3.0) the [library module](src/content/dicey.xqm) itself should be compatible with any XQuery 3.1 runtime (e.g. saxon 10, baseX 9.5.x).
 
 ## Contributing
 
