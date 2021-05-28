@@ -1,4 +1,5 @@
 {
+  "branches": ["main"],
   "plugins": [
     "@semantic-release/commit-analyzer",
     "@semantic-release/release-notes-generator",
@@ -13,9 +14,9 @@
     ["@semantic-release/github", {
       "assets": [
         {
-          "path": "./xbow-*.xar", 
-          "name": "xbow-${nextRelease.version}.xar",
-          "label": "Expath package (xbow-${nextRelease.version}.xar)"
+          "path": "./dicey-*.xar", 
+          "name": "dicey-${nextRelease.version}.xar",
+          "label": "Expath package (dicey-${nextRelease.version}.xar)"
         }
       ]
     }]
