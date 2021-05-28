@@ -1,8 +1,8 @@
 # dicey
 
-![dicey logo](src/icon.png)
+> Just a bunch of random functions 
 
-> Just a bunch of random functions
+<img title="dicey library logo" alt="A fuming red cube with the symbols A and B on the two visible sides" src="src/icon.png" width="30%">
 
 ## Introduction
 
