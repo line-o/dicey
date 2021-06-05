@@ -19,13 +19,13 @@ So, you can use random number generators just as you would the XQuery standard o
 dicey:d6()?next()?next()?number
 ```
 
-## Alea iact est
+## Alea iacta est
 
 `dicey:sequence` is handy whenever you need more than one
 random value. It works with any dicey random generator - and
 the standard one as well.
 
-Throw three dice in a row:
+Throw one dice three times in a row:
 
 ```xquery
 dicey:sequence(3, dicey:d6())?sequence
@@ -87,7 +87,7 @@ That is particularly useful for assembling test-data.
 Construct a string with ten random small latin characters:
 
 ```xquery
-dicey:random-from-characters(10, "abcdefghijklmnopqrstuvwxyz")
+dicey:random-from-characters(10, "abcdefghijklmnopqrstuvwxyz")?string
 ```
 
 Pick _something_ at random:
