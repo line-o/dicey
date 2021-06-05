@@ -59,7 +59,7 @@
      "src/examples/*",
      "src/content/*",
      "src/test/*.*",
-     "src/icon.png"
+     "src/icon.svg"
  ]
  
  /**
