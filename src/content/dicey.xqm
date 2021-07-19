@@ -74,11 +74,6 @@ declare function dicey:random-from ($sequence as item()*,
     ))
 };
 
-declare function dicey:n-integers-from-to ($n as xs:integer, $min as xs:integer, $max as xs:integer) as xs:integer* {
-    dicey:sequence($n, 
-        dicey:ranged-random-integer($min, $max,
-            random-number-generator()))
-};
 
 declare function dicey:random-from-characters ($n as xs:integer, $characters as xs:string) as xs:string {
     dicey:random-from-characters($n, $characters, random-number-generator())
