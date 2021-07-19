@@ -6,39 +6,61 @@
 
 ## Introduction
 
-Throw a dice (with 6 sides).
+Import the module with
 
 ```xquery
-dicey:d6()?number
+import module namespace dicey="http://line-o.de/xq/dicey";
+```
+
+Now you can throw a (six-sided) dice.
+
+```xquery
+dicey:d6()?_item
 ```
 
 The library augments the default `fn:random-number-generator` in several ways.
-So, you can use random number generators just as you would the XQuery standard one. But `d6` will always return xs:integers between 1 and 6.
+So, you can use dicey random number generators as if they were the XQuery built-ins.
+
+The added functionality lies in additional keys in the returned map
+
+- `_dicey`: if this is true() you have an augmented random at your hands
+- `_item`: a _thing_ derived from the current random number 
+- `_next`: a wrapped call to `next` that will produce the next augmented generator of the __current__ type
+
+For `dicey:d6`, for example, `_item` will always be a xs:integer between 1 and 6.
 
 ```xquery
-dicey:d6()?next()?next()?number
+dicey:d6()?_next()?_next()?_item
 ```
+
+The underscores might be an acquired taste, but the decision was made after reading the [specification of fn:random-number-generator](https://www.w3.org/TR/xpath-functions-31/#func-random-number-generator). Specifically this sentence struck a chord:
+
+> The map returned by the fn:random-number-generator function may contain additional entries beyond those specified here, but it must match the type map(xs:string, item()). The meaning of any additional entries is ·implementation-defined·. To avoid conflict with any future version of this specification, the keys of any such entries should start with an underscore character.
 
 ## Alea iacta est
 
 `dicey:sequence` is handy whenever you need more than one
-random value. It works with any dicey random generator - and
-the standard one as well.
+random value. 
 
 Throw one dice three times in a row:
 
 ```xquery
 dicey:sequence(3, dicey:d6())?sequence
 ```
+It also works with the built-in random number generator.
+
+```xquery
+dicey:sequence(9, random-number-generator())?sequence
+```
 
 **Note:**
-For a (random) number of reasons `dicey:sequence` returns a map.
+For a (specific) number of reasons `dicey:sequence` returns a map.
 The `sequence` key value is what you are usually after.
 Read on to learn what the other key is about.
 
 ## Seeded random
 
-When you provide your speficic random, throwing a dice 
+When you provide your specific random, throwing a dice 
 will have a reproducible outcome.
 
 ```xquery
@@ -53,7 +75,7 @@ let $piked-dice := dicey:d6(random-number-generator(103))
 let $first-batch := dicey:sequence(6, $piked-dice)
 return (
     $first-batch?sequence,
-    dicey:sequence(6, $first-batch?next())
+    dicey:sequence(6, $first-batch?_next())
 )
 ```
 
@@ -61,23 +83,31 @@ Or get a hold of the plain `random-number-generator` again. That way you can set
 
 ```xquery
 let $piked-dice := dicey:d6(random-number-generator(103))
-let $d20 := dicey:d20($piked-dice?generator?random())
+let $d20 := dicey:d20($piked-dice?next())
 return (
-    $first-batch?sequence,
-    $d20?next()?number
+    $piked-dice?_item,
+    $d20?_item
 )
 ```
 
 ## One in a million
 
-`dicey:n-integers-from-to` is convenient, if you just need a bunch of random integer values in a specific range.
+What if you need a random number in an arbitrary range?
+
+For decimals:
 
 ```xquery
-dicey:n-integers-from-to(1, 1, 1000000)
+dicey:ranged-random(-1.71, 2.46)?_item
 ```
 
-**Note:**
-You will not be able to get a hold on the random number generator.
+For integers:
+
+```xquery
+dicey:ranged-random-integer(12, 89)?_item
+```
+
+Those two can of course be used with `dicey:sequence`.
+They also both have a signature that accepts a random number generator as the third parameter.
 
 ## Beyond Numbers
 
@@ -87,7 +117,7 @@ That is particularly useful for assembling test-data.
 Construct a string with ten random small latin characters:
 
 ```xquery
-dicey:random-from-characters(10, "abcdefghijklmnopqrstuvwxyz")?string
+dicey:random-from-characters(10, "abcdefghijklmnopqrstuvwxyz")?_item
 ```
 
 Pick _something_ at random:
@@ -97,11 +127,11 @@ let $stuff-to-choose-from :=
 (
     map { 
         "name": "alice", 
-        "id": dicey:n-integers-from-to(1, 1, 1000000)
+        "id": 1
     }, 
     map { 
         "name": "bob",
-        "id": dicey:n-integers-from-to(1, 1, 1000000)
+        "id": 2
     }
 )
 
@@ -110,6 +140,39 @@ dicey:sequence(1,
         $stuff-to-choose-from, random-number-generator())
     )?sequence
 
+```
+
+## Roll your own random 
+
+The example above could be generalized into a function creating fake users.
+
+```xquery
+xquery version "3.1";
+import module namespace dicey="http://line-o.de/xq/dicey";
+
+declare variable $local:names := ("alice", "bob");
+declare function local:random-user ($generator as map(xs:string, item())) as map(*) {
+    let $fake-user := map {
+        "id": dicey:ranged-random-integer(1, 10000, $generator)?_item,
+        "name": dicey:random-from($local:names, $generator)?_item
+    }
+
+    return
+        map:merge((
+            map {
+                "_dicey": true(),
+                "_item":  $fake-user,
+                "_next": function() {
+                    local:random-user($generator?next())
+                }
+            },
+            $generator
+        )) 
+};
+
+dicey:sequence(2, 
+    local:random-user(
+        random-number-generator()))?sequence
 ```
 
 ## Compatibility
