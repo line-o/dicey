@@ -107,17 +107,19 @@ declare function dicey:random-from-characters ($n as xs:integer, $characters as 
     ))
 };
 
+(: coinflip :)
+
+declare function dicey:coinflip() as map(*) {
+    dicey:coinflip(random-number-generator())
 };
 
-(: standard dice :)
-
-declare function dicey:d6() as map(*) {
-    dicey:d6(random-number-generator())
+declare function dicey:coinflip($generator as map(*)) as map(*) {
+    dicey:random-from(("head", "tail"), $generator)
 };
 
-declare function dicey:d6($generator as map(*)) as map(*) {
-    dicey:ranged-random-integer(1, 6, $generator)
-};
+(: standard dice, platonic solids :)
+
+(: tetrahedron :)
 
 declare function dicey:d4() as map(*) {
     dicey:d4(random-number-generator())
@@ -127,6 +129,28 @@ declare function dicey:d4($generator as map(*)) as map(*) {
     dicey:ranged-random-integer(1, 4, $generator)
 };
 
+(: cube :)
+
+declare function dicey:d6() as map(*) {
+    dicey:d6(random-number-generator())
+};
+
+declare function dicey:d6($generator as map(*)) as map(*) {
+    dicey:ranged-random-integer(1, 6, $generator)
+};
+
+(: octahedron :)
+
+declare function dicey:d8() as map(*) {
+    dicey:d4(random-number-generator())
+};
+
+declare function dicey:d8($generator as map(*)) as map(*) {
+    dicey:ranged-random-integer(1, 8, $generator)
+};
+
+(: icosahedron :)
+
 declare function dicey:d12() as map(*) {
     dicey:d12(random-number-generator())
 };
@@ -135,6 +159,8 @@ declare function dicey:d12($generator as map(*)) as map(*) {
     dicey:ranged-random-integer(1, 12, $generator)
 };
 
+(: dodecahedron :)
+
 declare function dicey:d20() as map(*) {
     dicey:d12(random-number-generator())
 };
@@ -142,6 +168,30 @@ declare function dicey:d20() as map(*) {
 declare function dicey:d20($generator as map(*)) as map(*) {
     dicey:ranged-random-integer(1, 20, $generator)
 };
+
+(: other dice :)
+
+(: truncated icosahedron, buckyball, fullerene :)
+
+declare function dicey:d32() as map(*) {
+    dicey:d12(random-number-generator())
+};
+
+declare function dicey:d32($generator as map(*)) as map(*) {
+    dicey:ranged-random-integer(1, 32, $generator)
+};
+
+(: dodecahedron with subdivided surfaces :)
+
+declare function dicey:d60() as map(*) {
+    dicey:d60(random-number-generator())
+};
+
+declare function dicey:d60($generator as map(*)) as map(*) {
+    dicey:ranged-random-integer(1, 60, $generator)
+};
+
+(: spindle :)
 
 declare function dicey:d100() as map(*) {
     dicey:d100(random-number-generator())

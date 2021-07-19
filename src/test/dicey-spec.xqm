@@ -103,12 +103,72 @@ function dicey-spec:d6 () {
 };
 
 declare 
+    %test:assertEquals(3)
+function dicey-spec:seeded-d4 () {
+    dicey:d4($dicey-spec:seeded-random)?_item
+};
+
+declare 
     %test:assertEquals(4)
 function dicey-spec:seeded-d6 () {
     dicey:d6($dicey-spec:seeded-random)?_item
 };
 
 declare 
+    %test:assertEquals(6)
+function dicey-spec:seeded-d8 () {
+    dicey:d8($dicey-spec:seeded-random)?_item
+};
+
+declare 
+    %test:assertEquals(8)
+function dicey-spec:seeded-d12 () {
+    dicey:d12($dicey-spec:seeded-random)?_item
+};
+
+declare 
+    %test:assertEquals(14)
+function dicey-spec:seeded-d20 () {
+    dicey:d20($dicey-spec:seeded-random)?_item
+};
+
+declare 
+    %test:assertEquals(22)
+function dicey-spec:seeded-d32 () {
+    dicey:d32($dicey-spec:seeded-random)?_item
+};
+
+declare 
+    %test:assertEquals(40)
+function dicey-spec:seeded-d60 () {
+    dicey:d60($dicey-spec:seeded-random)?_item
+};
+
+declare 
+    %test:assertEquals(66)
+function dicey-spec:seeded-d100 () {
+    dicey:d100($dicey-spec:seeded-random)?_item
+};
+
+declare 
+    %test:assertTrue
+function dicey-spec:coinflip-label () {
+    dicey:coinflip()?_item = ("head", "tail")
+};
+
+declare 
+    %test:assertTrue
+function dicey-spec:coinflip-index () {
+    dicey:coinflip()?_index = (1, 2)
+};
+
+declare 
+    %test:assertEquals(2)
+function dicey-spec:seeded-coinflip-index () {
+    dicey:coinflip($dicey-spec:seeded-random)?_index
+};
+
+declare
     %test:assertEquals(4, 2, 2, 3, 3)
 function dicey-spec:five-seeded-d6 () {
     dicey:sequence(5, dicey:d6($dicey-spec:seeded-random))?sequence
