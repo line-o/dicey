@@ -3,7 +3,7 @@ xquery version "3.1";
 module namespace dicey="http://line-o.de/xq/dicey";
 
 declare function dicey:sequence ($n as xs:integer,
-        $generator as map(xs:string, item())) as item()* {
+        $generator as map(xs:string, item())) as map(*) {
     fold-left(
         1 to $n,
         map { "sequence": (), "generator": $generator},
