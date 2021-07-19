@@ -27,6 +27,10 @@ function dicey:built-in-reducer ($accu as map(*), $counter as xs:integer) as map
     }
 };
 
+declare function dicey:ranged-random ($min as xs:decimal, $max as xs:decimal) as map(*) {
+    dicey:ranged-random($min, $max, random-number-generator())
+};
+
 declare function dicey:ranged-random ($min as xs:decimal, $max as xs:decimal, 
         $generator as map(xs:string, item())) as map(*) {
     map:merge((
@@ -41,6 +45,8 @@ declare function dicey:ranged-random ($min as xs:decimal, $max as xs:decimal,
     )) 
 };
 
+declare function dicey:ranged-random-integer ($min as xs:integer, $max as xs:integer) as map(*) {
+    dicey:ranged-random-integer($min, $max, random-number-generator())
 };
 
 declare function dicey:ranged-random-integer ($min as xs:integer, $max as xs:integer,
@@ -56,6 +62,10 @@ declare function dicey:ranged-random-integer ($min as xs:integer, $max as xs:int
         },
         $generator
     ))
+};
+
+declare function dicey:random-from ($sequence as item()*) as map(*) {
+    dicey:random-from($sequence, random-number-generator())
 };
 
 declare function dicey:random-from ($sequence as item()*, 
@@ -74,8 +84,7 @@ declare function dicey:random-from ($sequence as item()*,
     ))
 };
 
-
-declare function dicey:random-from-characters ($n as xs:integer, $characters as xs:string) as xs:string {
+declare function dicey:random-from-characters ($n as xs:integer, $characters as xs:string) as map(*) {
     dicey:random-from-characters($n, $characters, random-number-generator())
 };
 
