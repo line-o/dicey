@@ -27,6 +27,33 @@ function dicey:built-in-reducer ($accu as map(*), $counter as xs:integer) as map
     }
 };
 
+declare function dicey:array ($n as xs:integer,
+        $generator as map(xs:string, item())) as map(*) {
+    if ($n < 0)
+    then error(xs:QName("dicey:argument-error"), "$n must be zero or greater, but got " || $n || ".")
+    else fold-left(
+            1 to $n,
+            map { "array": [], "generator": $generator},
+            if ($generator?_dicey) then dicey:array-reducer#2 else dicey:built-in-array-reducer#2
+        )
+};
+
+declare %private
+function dicey:array-reducer ($accu as map(*), $counter as xs:integer) as map(*) {
+    map {
+        "array": array:append($accu?array, $accu?generator?_item),
+        "generator": $accu?generator?_next()
+    }
+};
+
+declare %private 
+function dicey:built-in-array-reducer ($accu as map(*), $counter as xs:integer) as map(*) {
+    map {
+        "array": array:append($accu?array, $accu?generator?number),
+        "generator": $accu?generator?next()
+    }
+};
+
 declare function dicey:pick ($n as xs:integer, $from as item()*,
         $generator as map(xs:string, item())) as map(*) {
     typeswitch ($from)

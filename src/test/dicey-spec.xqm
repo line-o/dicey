@@ -96,6 +96,24 @@ function dicey-spec:seeded-random-from-selects-item-at-number () {
 };
 
 declare
+    %test:assertEquals(0.6615454402909532, 0.2737395224464364, 0.20389978922664642)
+function dicey-spec:seeded-array () {
+    dicey:array(3, $dicey-spec:seeded-random)?array?*
+};
+
+declare
+    %test:assertEmpty
+function dicey-spec:seeded-array-zero () {
+    dicey:array(0, $dicey-spec:seeded-random)?array?*
+};
+
+declare
+    %test:assertError("dicey:argument-error")
+function dicey-spec:seeded-array-negative () {
+    dicey:array(-1, $dicey-spec:seeded-random)
+};
+
+declare
     %test:assertEmpty
 function dicey-spec:pick-zero-from-array-returns-empty-array () {
     dicey:pick(0, array{1 to 8}, $dicey-spec:seeded-random)?array?*
