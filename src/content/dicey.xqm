@@ -4,11 +4,13 @@ module namespace dicey="http://line-o.de/xq/dicey";
 
 declare function dicey:sequence ($n as xs:integer,
         $generator as map(xs:string, item())) as map(*) {
-    fold-left(
-        1 to $n,
-        map { "sequence": (), "generator": $generator},
-        if ($generator?_dicey) then dicey:reducer#2 else dicey:built-in-reducer#2
-    )
+    if ($n < 0)
+    then error(xs:QName("dicey:argument-error"), "$n must be zero or greater, but got " || $n || ".")
+    else fold-left(
+            1 to $n,
+            map { "sequence": (), "generator": $generator},
+            if ($generator?_dicey) then dicey:reducer#2 else dicey:built-in-reducer#2
+        )
 };
 
 declare %private
