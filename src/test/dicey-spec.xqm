@@ -95,6 +95,48 @@ function dicey-spec:seeded-random-from-selects-item-at-number () {
         $dicey-spec:fibo[$random?_index] eq $random?_item
 };
 
+declare
+    %test:assertEmpty
+function dicey-spec:pick-zero-returns-empty-sequence () {
+    dicey:pick(0, (1 to 8), $dicey-spec:seeded-random)?sequence
+};
+
+declare
+    %test:assertEquals(6,2,3,5)
+function dicey-spec:pick-returns-correct-sequence () {
+    dicey:pick(4, (1 to 8), $dicey-spec:seeded-random)?sequence
+};
+
+declare
+    %test:assertEquals(1,4,7,8)
+function dicey-spec:pick-returns-correct-remainder () {
+    dicey:pick(4, (1 to 8), $dicey-spec:seeded-random)?from
+};
+
+declare
+    %test:assertEquals(6,2,3,5,4,1,8,7)
+function dicey-spec:pick-all-returns-correct-sequence () {
+    dicey:pick(8, (1 to 8), $dicey-spec:seeded-random)?sequence
+};
+
+declare
+    %test:assertEmpty
+function dicey-spec:pick-all-returns-correct-remainder () {
+    dicey:pick(8, (1 to 8), $dicey-spec:seeded-random)?from
+};
+
+declare
+    %test:assertError("dicey:argument-error")
+function dicey-spec:pick-n-larger-than-sequence-error () {
+    dicey:pick(9, (1 to 8), $dicey-spec:seeded-random)
+};
+
+declare
+    %test:assertError("dicey:argument-error")
+function dicey-spec:pick-negative-n-error () {
+    dicey:pick(-1, (1 to 8), $dicey-spec:seeded-random)
+};
+
 declare 
     %test:assertTrue
 function dicey-spec:d6 () {

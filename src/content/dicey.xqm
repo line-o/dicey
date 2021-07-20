@@ -27,6 +27,36 @@ function dicey:built-in-reducer ($accu as map(*), $counter as xs:integer) as map
     }
 };
 
+declare function dicey:pick ($n as xs:integer, $from as item()*,
+        $generator as map(xs:string, item())) as map(*) {
+    if ($n < 0)
+    then error(xs:QName("dicey:argument-error"), "Only zero or more items can be picked, but $n was " || $n || ".")
+    else if ($n > count($from))
+    then error(xs:QName("dicey:argument-error"), "Sequence must have at least as much entries as need to be picked. Given sequence has " || count($from) || " entries, but " || $n || " items were requested.")
+    else
+        fold-left(
+            1 to $n,
+            map { "sequence": (), "generator": $generator, "from": $from },
+            dicey:picker#2
+        )
+};
+
+declare %private
+function dicey:picker ($accu as map(*), $counter as xs:integer) as map(*) {
+    let $seq := $accu?from
+    let $next := dicey:random-from($seq, $accu?generator)
+
+    return
+        map {
+            "sequence": ($accu?sequence, $next?_item),
+            "generator": $next?next(),
+            "from": (
+                subsequence($seq, 1, $next?_index - 1),
+                subsequence($seq, $next?_index + 1)
+            )
+        }
+};
+
 declare function dicey:ranged-random ($min as xs:decimal, $max as xs:decimal) as map(*) {
     dicey:ranged-random($min, $max, random-number-generator())
 };
