@@ -54,7 +54,11 @@ dicey:sequence(9, random-number-generator())?sequence
 ```
 
 **Note:**
-For a (specific) number of reasons `dicey:sequence` returns a map.
+For a (specific) number of reasons `dicey:sequence` returns a map with:
+
+- _sequence:_ the sequence of n random items
+- _generator:_ the random number generator in use
+
 The `sequence` key value is what you are usually after.
 Read on to learn what the other key is about.
 
@@ -94,20 +98,43 @@ return (
 
 What if you need a random number in an arbitrary range?
 
+For integers:
+
+```xquery
+dicey:ranged-random-integer(1, 1000000)?_item
+```
+
 For decimals:
 
 ```xquery
 dicey:ranged-random(-1.71, 2.46)?_item
 ```
 
-For integers:
-
-```xquery
-dicey:ranged-random-integer(12, 89)?_item
-```
-
 Those two can of course be used with `dicey:sequence`.
 They also both have a signature that accepts a random number generator as the third parameter.
+
+## Picking items at random
+
+If you want to pick n items from a sequence, so that each unique item will only
+be returned once you can use the `permute` function returned by `random-number-generator`.
+
+```xquery
+random-number-generator()?permute($sequence)
+=> subsequence(1, $n)
+```
+
+Or, you can use `dicey:pick` that achieves the same result, but lazily by (re)moving items
+at random indeces.
+
+```xquery
+dicey:pick($n, $sequence, random-number-generator())?sequence
+```
+
+`dicey:pick` returns a map with following properties:
+
+- _sequence:_ the sequence of n items that were picked
+- _from:_ the remainder of items from the original sequence
+- _generator:_ the random number generator in use
 
 ## Beyond Numbers
 
