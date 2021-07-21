@@ -161,11 +161,18 @@ declare function dicey:ranged-random-integer ($min as xs:integer, $max as xs:int
     ))
 };
 
-declare function dicey:random-from ($sequence as item()*) as map(*) {
+declare function dicey:random-from ($sequence-or-array as item()*) as map(*) {
     dicey:random-from($sequence, random-number-generator())
 };
 
-declare function dicey:random-from ($sequence as item()*, 
+declare function dicey:random-from ($sequence-or-array as item()*, 
+        $generator as map(xs:string, item())) as map(*) {
+    typeswitch ($sequence-or-array)
+    case array(*) return dicey:random-from-array($sequence-or-array, $generator)
+    default return dicey:random-from-sequence($sequence-or-array, $generator)
+};
+
+declare function dicey:random-from-sequence ($sequence as item()*, 
         $generator as map(xs:string, item())) as map(*) {
     let $random-index := xs:integer($generator?number * (count($sequence))) + 1
     return map:merge((
@@ -174,7 +181,23 @@ declare function dicey:random-from ($sequence as item()*,
             "_index": $random-index,
             "_item": $sequence[$random-index],
             "_next": function () {
-                dicey:random-from($sequence, $generator?next())
+                dicey:random-from-sequence($sequence, $generator?next())
+            }
+        },
+        $generator
+    ))
+};
+
+declare function dicey:random-from-array ($array as array(*), 
+        $generator as map(xs:string, item())) as map(*) {
+    let $random-index := xs:integer($generator?number * array:size($array)) + 1
+    return map:merge((
+        map {
+            "_dicey": true(),
+            "_index": $random-index,
+            "_item": $array($random-index),
+            "_next": function () {
+                dicey:random-from-array($array, $generator?next())
             }
         },
         $generator

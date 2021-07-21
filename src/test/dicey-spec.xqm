@@ -8,6 +8,7 @@ import module namespace dicey="http://line-o.de/xq/dicey";
 declare namespace test="http://exist-db.org/xquery/xqsuite";
 
 declare variable $dicey-spec:fibo := (1, 1, 2, 3, 5, 8, 13);
+declare variable $dicey-spec:array-of-sequences := [(1), (2,3), ()];
 
 declare variable $dicey-spec:things := (
     map{ "id": 1, "name": "a" },
@@ -95,6 +96,32 @@ function dicey-spec:seeded-random-from-selects-item-at-number () {
         $dicey-spec:fibo[$random?_index] eq $random?_item
 };
 
+declare 
+    %test:assertEquals(2, 5)
+function dicey-spec:seeded-random-from-array () {
+    let $random := dicey:random-from-array($dicey-spec:array-of-sequences, 
+        $dicey-spec:seeded-random)?_item
+    
+    return (count($random), sum($random))
+};
+
+declare 
+    %test:assertEquals(2)
+function dicey-spec:seeded-random-from-array-has-index () {
+    dicey:random-from-array($dicey-spec:array-of-sequences, 
+        $dicey-spec:seeded-random)?_index
+};
+
+declare 
+    %test:assertTrue
+function dicey-spec:seeded-random-from-array-selects-item-at-number () {
+    let $random := dicey:random-from-array($dicey-spec:array-of-sequences,
+            random-number-generator())
+    return
+        count($dicey-spec:array-of-sequences($random?_index)) eq count($random?_item)
+        and sum($dicey-spec:array-of-sequences($random?_index)) eq sum($random?_item)
+};
+
 declare
     %test:assertEquals(0.6615454402909532, 0.2737395224464364, 0.20389978922664642)
 function dicey-spec:seeded-sequence () {
@@ -129,6 +156,16 @@ declare
     %test:assertError("dicey:argument-error")
 function dicey-spec:seeded-array-negative () {
     dicey:array(-1, $dicey-spec:seeded-random)
+};
+
+declare
+    %test:assertEquals(5, 1, 1, 5, 5, 1, 0)
+function dicey-spec:array-from-array-of-sequences () {
+    dicey:array(7,
+        dicey:random-from-array(dicey-spec:array-of-sequences, 
+        $dicey-spec:seeded-random))?array
+    => array:for-each(sum(?))
+    => (function ($array) { $array?* })()
 };
 
 declare
