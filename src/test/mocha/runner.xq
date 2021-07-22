@@ -51,7 +51,10 @@ catch * {
             "version": $local:version,
             "code": $err:code,
             "value": $err:value,
-            "description": $err:description
+            "description": $err:description,
+            "module": $err:module,
+            "line": $err:line-number,
+            "column": $err:column-number
         }
     },
     util:log('error', $err:description)
