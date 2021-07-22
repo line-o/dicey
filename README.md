@@ -39,8 +39,13 @@ The underscores might be an acquired taste, but the decision was made after read
 
 ## Alea iacta est
 
-`dicey:sequence` is handy whenever you need more than one
-random value. 
+Is latin for "the dice have fallen". There are two functions that are
+useful whenever you need more than one random value.
+
+`dicey:sequence` and `dicey:array`. The main difference between the two
+is that one returns a `sequence` and the other an `array` (the name gives it away).
+
+### dicey:sequence
 
 Throw one dice three times in a row:
 
@@ -53,24 +58,42 @@ It also works with the built-in random number generator.
 dicey:sequence(9, random-number-generator())?sequence
 ```
 
-**Note:**
-For a (specific) number of reasons `dicey:sequence` returns a map with:
+`dicey:sequence` returns a map with:
 
 - _sequence:_ the sequence of n random items
 - _generator:_ the random number generator in use
 
 The `sequence` key value is what you are usually after.
-Read on to learn what the other key is about.
+
+### dicey:array
+
+`dicey:array` is almost the same, but returns a map with:
+
+- _array:_ the array of n random items
+- _generator:_ the random number generator in use
+
+```xquery
+dicey:array(3, dicey:d6())?array
+```
+It also works with the built-in random number generator.
+
+```xquery
+dicey:array(9, random-number-generator())?array
+```
+
+Read on to learn what the `generator` key is about.
 
 ## Seeded random
 
-When you provide your specific random, throwing a dice 
+When you provide your seeded random, throwing a dice 
 will have a reproducible outcome.
 
 ```xquery
 let $piked-dice := dicey:d6(random-number-generator(103))
 return dicey:sequence(6, $piked-dice)?sequence
 ```
+
+## Continuation
 
 It is also interesting to continue using the same dice across different uses.
 
@@ -123,34 +146,62 @@ random-number-generator()?permute($sequence)
 => subsequence(1, $n)
 ```
 
-Or, you can use `dicey:pick` that achieves the same result, but lazily by (re)moving items
-at random indeces.
+Or, you can use `dicey:pick` to achieve the same result, but lazily by (re)moving items
+at random indeces. The function can pick from both arrays and sequences. The result is 
+returned in the corresponding key.
 
 ```xquery
-dicey:pick($n, $sequence, random-number-generator())?sequence
+dicey:pick($n, $from, random-number-generator())?sequence
 ```
 
 `dicey:pick` returns a map with following properties:
 
-- _sequence:_ the sequence of n items that were picked
+- _sequence:_ the sequence of n items that were picked, if a sequence was provided as $from
+- _array:_ the array of n items that were picked, if an array was provided as $from
 - _from:_ the remainder of items from the original sequence
 - _generator:_ the random number generator in use
+
+You can access the two implementations `dicey:pick-from-sequence` and `dicey:pick-from-array` 
+directly. That way you can be certain which key the result is in.
 
 ## Beyond Numbers
 
 The library can help you pick all kinds of data at random. 
 That is particularly useful for assembling test-data.
 
-Construct a string with ten random small latin characters:
+### Pulling Strings
+
+To construct a random string from a set of characters there is a special function
+`dicey:random-from-characers`.
+
+A "word" with ten random small latin characters can be generated with:
 
 ```xquery
 dicey:random-from-characters(10, "abcdefghijklmnopqrstuvwxyz")?_item
 ```
 
-Pick _something_ at random:
+There is also a signature to provide your generator
 
 ```xquery
-let $stuff-to-choose-from :=
+dicey:random-from-characters(10, "abcdefghijklmnopqrstuvwxyz", random-number-generator(103))
+```
+
+### Picking _Something_
+
+Pass a list of items to `dicey:random-from` and it will pick one of them at random.
+
+`dicey:random-from` returns a map with following properties:
+
+- _sequence:_ the sequence of n items that were picked, if a sequence was provided as $from
+- _array:_ the array of n items that were picked, if an array was provided as $from
+- _from:_ the remainder of items from the original sequence
+- _generator:_ the random number generator in use
+
+
+As with `dicey:pick` earlier `dicey:random-from` can also handle arrays and sequences.
+
+```xquery
+let $stuff-to-pick-from :=
 (
     map { 
         "name": "alice", 
@@ -164,21 +215,43 @@ let $stuff-to-choose-from :=
 
 dicey:sequence(1,
     dicey:random-from(
-        $stuff-to-choose-from, random-number-generator())
+        $stuff-to-pick-from, random-number-generator())
     )?sequence
-
 ```
 
-## Roll your own random 
+With arrays you can also have empty sequences in your options, which can be very handy.
 
-The example above could be generalized into a function creating fake users.
+```xquery
+let $might-be-empty :=
+[
+    map { 
+        "name": "alice", 
+        "id": 1
+    },
+    ()
+]
+
+dicey:array(1,
+    dicey:random-from(
+        $might-be-empty, random-number-generator())
+    )?array
+```
+
+Of course you can deliberately use `dicey:random-from-array` and `dicey:random-from-sequence`.
+
+## Roll your own random
+
+You can use the functions `dicey` provides to build functions that generate random values in other
+domains.
+
+The example from the previous section can be generalized into a function creating fake users.
 
 ```xquery
 xquery version "3.1";
 import module namespace dicey="http://line-o.de/xq/dicey";
 
 declare variable $local:names := ("alice", "bob");
-declare function local:random-user ($generator as map(xs:string, item())) as map(*) {
+declare function local:random-user ($generator as map(xs:string, item())) as map(xs:string, item()) {
     let $fake-user := map {
         "id": dicey:ranged-random-integer(1, 10000, $generator)?_item,
         "name": dicey:random-from($local:names, $generator)?_item
@@ -200,6 +273,36 @@ declare function local:random-user ($generator as map(xs:string, item())) as map
 dicey:sequence(2, 
     local:random-user(
         random-number-generator()))?sequence
+```
+
+A generator creating random colors in CSS' functional rgb notation:
+
+```xquery
+xquery version "3.1";
+import module namespace dicey="http://line-o.de/xq/dicey";
+
+declare function local:rgb ($generator as map(xs:string, item())) as map(xs:string, item())s {
+    let $result := dicey:sequence(3, dicey:ranged-random-integer(0, 255, $generator))
+    let $color := ``[rgb(`{string-join($result?sequence, ",")}`)]``
+    return map:merge((
+        $result?generator,
+        map {
+            "_dicey": true(),
+            "_item": $color,
+            "_next": function () { local:rgb($result?generator?next()) }
+        }
+    ))
+};
+
+(: example output: 
+  [
+    "rgb(183,185,220)",
+    "rgb(200,187,39)",
+    "rgb(14,43,23)"
+  ]
+:)
+dicey:array(3, 
+    local:rgb(random-number-generator(103)))?array
 ```
 
 ## Compatibility
