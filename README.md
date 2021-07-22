@@ -2,7 +2,7 @@
 
 > Just a bunch of random functions 
 
-<img title="dicey library logo" alt="A blue icosahedron (twenty-sided dice) with one greek letter on each side" src="src/icon.svg" width="30%">
+<img title="dicey library logo" alt="A blue icosahedron (twenty-sided dice) with one ancient letter on each side" src="src/icon.svg" width="30%">
 
 ## Introduction
 
@@ -136,33 +136,35 @@ dicey:ranged-random(-1.71, 2.46)?_item
 Those two can of course be used with `dicey:sequence`.
 They also both have a signature that accepts a random number generator as the third parameter.
 
-## Picking items at random
+## Drawing Items from a Stash
 
-If you want to pick n items from a sequence, so that each unique item will only
-be returned once you can use the `permute` function returned by `random-number-generator`.
+If you want to draw __n__ items from a sequence, so that each item will only
+be returned once, you can use the `permute` function returned by `random-number-generator`.
 
 ```xquery
 random-number-generator()?permute($sequence)
 => subsequence(1, $n)
 ```
 
-Or, you can use `dicey:pick` to achieve the same result, but lazily by (re)moving items
-at random indeces. The function can pick from both arrays and sequences. The result is 
+Or, you can use `dicey:draw` to achieve the same result, but lazily by (re)moving items
+at random indeces. The function can _draw from both, arrays and sequences_. The result is 
 returned in the corresponding key.
 
 ```xquery
-dicey:pick($n, $from, random-number-generator())?sequence
+dicey:draw($n, $from, random-number-generator())?sequence
 ```
 
-`dicey:pick` returns a map with following properties:
+`dicey:draw` returns a map with following properties:
 
-- _sequence:_ the sequence of n items that were picked, if a sequence was provided as $from
-- _array:_ the array of n items that were picked, if an array was provided as $from
+- _sequence:_ the sequence of n items that were drawn, if a sequence was provided as $from
+- _array:_ the array of n items that were drawn, if an array was provided as $from
 - _from:_ the remainder of items from the original sequence
 - _generator:_ the random number generator in use
 
-You can access the two implementations `dicey:pick-from-sequence` and `dicey:pick-from-array` 
+You can access the two implementations `dicey:draw-from-sequence` and `dicey:draw-from-array` 
 directly. That way you can be certain which key the result is in.
+
+Drawing a few items from a large stash (> 10K items) is much faster than permuting it.  
 
 ## Beyond Numbers
 
@@ -198,7 +200,7 @@ Pass a list of items to `dicey:random-from` and it will pick one of them at rand
 - _generator:_ the random number generator in use
 
 
-As with `dicey:pick` earlier `dicey:random-from` can also handle arrays and sequences.
+As with `dicey:draw` earlier `dicey:pick` can also handle arrays and sequences.
 
 ```xquery
 let $stuff-to-pick-from :=
@@ -214,7 +216,7 @@ let $stuff-to-pick-from :=
 )
 
 dicey:sequence(1,
-    dicey:random-from(
+    dicey:pick(
         $stuff-to-pick-from, random-number-generator())
     )?sequence
 ```
@@ -232,12 +234,12 @@ let $might-be-empty :=
 ]
 
 dicey:array(1,
-    dicey:random-from(
+    dicey:picks(
         $might-be-empty, random-number-generator())
     )?array
 ```
 
-Of course you can deliberately use `dicey:random-from-array` and `dicey:random-from-sequence`.
+Of course you can deliberately use `dicey:pick-from-array` and `dicey:pick-from-sequence`.
 
 ## Roll your own random
 

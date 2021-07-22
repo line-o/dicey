@@ -56,62 +56,62 @@ function dicey:built-in-array-reducer ($accu as map(*), $counter as xs:integer) 
     }
 };
 
-declare function dicey:pick ($n as xs:integer, $from as item()*,
-        $generator as map(xs:string, item())) as map(*) {
-    typeswitch ($from)
-    case array(*) return dicey:pick-from-array($n, $from, $generator)
-    default return dicey:pick-from-sequence($n, $from, $generator)
+declare function dicey:draw ($n as xs:integer, $from as item()*) as map(*) {
+    dicey:draw($n, $from, random-number-generator())
 };
 
-declare function dicey:pick-from-array ($n as xs:integer, $from as array(*),
+declare function dicey:draw ($n as xs:integer, $from as item()*,
+        $generator as map(xs:string, item())) as map(*) {
+    typeswitch ($from)
+    case array(*) return dicey:draw-from-array($n, $from, $generator)
+    default return dicey:draw-from-sequence($n, $from, $generator)
+};
+
+declare function dicey:draw-from-array ($n as xs:integer, $from as array(*),
         $generator as map(xs:string, item())) as map(*) {
     if ($n < 0)
-    then error(xs:QName("dicey:argument-error"), "Only zero or more items can be picked, but $n was " || $n || ".")
+    then error(xs:QName("dicey:argument-error"), "Only zero or more items can be drawn, but $n was " || $n || ".")
     else if ($n > array:size($from))
-    then error(xs:QName("dicey:argument-error"), "Sequence must have at least as much entries as need to be picked. Given sequence has " || count($from) || " entries, but " || $n || " items were requested.")
+    then error(xs:QName("dicey:argument-error"), "Array must have at least as much entries as need to be drawn. Given array has " || array:size($from) || " entries, but " || $n || " items were requested.")
     else
         fold-left(
             1 to $n,
             map { "array": [], "generator": $generator, "from": $from },
-            dicey:array-picker#2
+            dicey:array-drawer#2
         )
 };
 
 declare %private
-function dicey:array-picker ($accu as map(*), $counter as xs:integer) as map(*) {
+function dicey:array-drawer ($accu as map(*), $counter as xs:integer) as map(*) {
     let $array := $accu?from
-    let $next := dicey:random-from-array($array, $accu?generator)
+    let $next := dicey:pick-from-array($array, $accu?generator)
 
     return
         map {
             "array": array:append($accu?array, $next?_item),
             "generator": $next?next(),
             "from": array:remove($array, $next?_index)
-            (: "from": array:join((
-                array:subarray($array, 1, $next?_index - 1),
-                array:subarray($array, $next?_index + 1)
-            )) :)
         }
 };
 
-declare function dicey:pick-from-sequence ($n as xs:integer, $from as item()*,
+declare function dicey:draw-from-sequence ($n as xs:integer, $from as item()*,
         $generator as map(xs:string, item())) as map(*) {
     if ($n < 0)
-    then error(xs:QName("dicey:argument-error"), "Only zero or more items can be picked, but $n was " || $n || ".")
+    then error(xs:QName("dicey:argument-error"), "Only zero or more items can be drawn, but $n was " || $n || ".")
     else if ($n > count($from))
-    then error(xs:QName("dicey:argument-error"), "Sequence must have at least as much entries as need to be picked. Given sequence has " || count($from) || " entries, but " || $n || " items were requested.")
+    then error(xs:QName("dicey:argument-error"), "Sequence must have at least as much entries as need to be drawn. Given sequence has " || count($from) || " entries, but " || $n || " items were requested.")
     else
         fold-left(
             1 to $n,
             map { "sequence": (), "generator": $generator, "from": $from },
-            dicey:sequence-picker#2
+            dicey:sequence-drawer#2
         )
 };
 
 declare %private
-function dicey:sequence-picker ($accu as map(*), $counter as xs:integer) as map(*) {
+function dicey:sequence-drawer ($accu as map(*), $counter as xs:integer) as map(*) {
     let $seq := $accu?from
-    let $next := dicey:random-from($seq, $accu?generator)
+    let $next := dicey:pick($seq, $accu?generator)
 
     return
         map {
@@ -161,18 +161,18 @@ declare function dicey:ranged-random-integer ($min as xs:integer, $max as xs:int
     ))
 };
 
-declare function dicey:random-from ($sequence-or-array as item()*) as map(*) {
-    dicey:random-from($sequence, random-number-generator())
+declare function dicey:pick ($from as item()*) as map(*) {
+    dicey:pick($from, random-number-generator())
 };
 
-declare function dicey:random-from ($sequence-or-array as item()*, 
+declare function dicey:pick ($from as item()*,
         $generator as map(xs:string, item())) as map(*) {
-    typeswitch ($sequence-or-array)
-    case array(*) return dicey:random-from-array($sequence-or-array, $generator)
-    default return dicey:random-from-sequence($sequence-or-array, $generator)
+    typeswitch ($from)
+    case array(*) return dicey:pick-from-array($from, $generator)
+    default return dicey:pick-from-sequence($from, $generator)
 };
 
-declare function dicey:random-from-sequence ($sequence as item()*, 
+declare function dicey:pick-from-sequence ($sequence as item()*, 
         $generator as map(xs:string, item())) as map(*) {
     let $random-index := xs:integer($generator?number * (count($sequence))) + 1
     return map:merge((
@@ -181,14 +181,14 @@ declare function dicey:random-from-sequence ($sequence as item()*,
             "_index": $random-index,
             "_item": $sequence[$random-index],
             "_next": function () {
-                dicey:random-from-sequence($sequence, $generator?next())
+                dicey:pick-from-sequence($sequence, $generator?next())
             }
         },
         $generator
     ))
 };
 
-declare function dicey:random-from-array ($array as array(*), 
+declare function dicey:pick-from-array ($array as array(*), 
         $generator as map(xs:string, item())) as map(*) {
     let $random-index := xs:integer($generator?number * array:size($array)) + 1
     return map:merge((
@@ -197,7 +197,7 @@ declare function dicey:random-from-array ($array as array(*),
             "_index": $random-index,
             "_item": $array($random-index),
             "_next": function () {
-                dicey:random-from-array($array, $generator?next())
+                dicey:pick-from-array($array, $generator?next())
             }
         },
         $generator
@@ -211,7 +211,7 @@ declare function dicey:random-from-characters ($n as xs:integer, $characters as 
 declare function dicey:random-from-characters ($n as xs:integer, $characters as xs:string, $generator as map(*)) as map(*) {
     let $rnd := 
         dicey:sequence($n, 
-            dicey:random-from(string-to-codepoints($characters), $generator))
+            dicey:pick(string-to-codepoints($characters), $generator))
 
     let $string := 
         $rnd?sequence
@@ -234,7 +234,7 @@ declare function dicey:coinflip() as map(*) {
 };
 
 declare function dicey:coinflip($generator as map(*)) as map(*) {
-    dicey:random-from(("head", "tail"), $generator)
+    dicey:pick(("head", "tail"), $generator)
 };
 
 (: standard dice, platonic solids :)
