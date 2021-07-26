@@ -1,6 +1,10 @@
 xquery version "3.1";
 
-module namespace dicey="http://line-o.de/xq/dicey";
+module namespace dicey = "http://line-o.de/xq/dicey";
+
+(: Saxon does not declare map and array namespaces by default :)
+declare namespace map = "http://www.w3.org/2005/xpath-functions/map";
+declare namespace array = "http://www.w3.org/2005/xpath-functions/array";
 
 declare function dicey:sequence ($n as xs:integer,
         $generator as map(xs:string, item())) as map(*) {
