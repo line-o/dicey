@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
        matrix:
-         exist-version: [latest, 6.1.0]
+         exist-version: [latest, 6.0.1]
     services:
       # Label used to access the service container
       exist:
@@ -17,9 +17,9 @@ jobs:
         ports:
           - 8080:8080
     steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js 14
-        uses: actions/setup-node@v1
+      - uses: actions/checkout@v3
+      - name: Use Node.js 18
+        uses: actions/setup-node@v3
         with:
           node-version: 18
       - run: npm ci
@@ -32,11 +32,11 @@ jobs:
     if: github.ref == 'refs/heads/main'
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Setup Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: 18
       - name: Install dependencies
