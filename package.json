@@ -17,15 +17,21 @@
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/github": "^8.0.7",
     "chai": "^4.3.7",
+    "chokidar": "^3.5.3",
     "delete": "^1.1.0",
+    "dotenv-cli": "^7.0.0",
+    "glob-stream": "^7.0.0",
     "gulp": "^4.0.2",
     "gulp-rename": "^2.0.0",
     "gulp-replace": "^1.1.4",
     "gulp-zip": "^5.1.0",
     "mocha": "^10.2.0",
     "semantic-release": "^20.0.4",
-    "superagent": "^8.0.8",
-    "dotenv-cli": "^7.0.0"
+    "superagent": "^8.0.8"
+  },
+  "overrides": {
+    "chokidar": "$chokidar",
+    "glob-stream": "$glob-stream"
   },
   "author": {
     "name": "Juri Leino",

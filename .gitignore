@@ -3,6 +3,6 @@
 !.existdb.json
 node_modules
 build
-*.xar
+dist
 
 .vscode

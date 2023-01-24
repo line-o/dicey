@@ -14,7 +14,7 @@
     ["@semantic-release/github", {
       "assets": [
         {
-          "path": "./dicey-*.xar", 
+          "path": "dist/dicey-*.xar", 
           "name": "dicey-${nextRelease.version}.xar",
           "label": "Expath package (dicey-${nextRelease.version}.xar)"
         }

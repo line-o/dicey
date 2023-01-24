@@ -8,7 +8,7 @@ const zip = require("gulp-zip")
 const replace = require('@existdb/gulp-replace-tmpl')
 const del = require('delete')
 
-// read metadata from package.json and .existdb.json
+// read metadata from package.json
 const { version, license, xar } = require('./package.json')
 
 // .tmpl replacements to include 
@@ -21,7 +21,7 @@ const existClient = createClient(readOptionsFromEnv());
  * Use the `delete` module directly, instead of using gulp-rimraf
  */
 function clean(cb) {
-    del(['build'], cb);
+    del(['build', 'dist'], cb);
 }
 exports.clean = clean
 
@@ -83,14 +83,14 @@ const packageName = () => `${xar.target}-${version}.xar`
 function buildXar() {
     return src('build/**/*', { base: 'build' })
         .pipe(zip(packageName()))
-        .pipe(dest('.'))
+        .pipe(dest('dist'))
 }
 
 /**
  * upload and install the latest built XAR
  */
 function installXar() {
-    return src(packageName())
+    return src(packageName(), {cwd:'dist'})
         .pipe(existClient.install({ packageUri: xar.namespace }))
 }
 
