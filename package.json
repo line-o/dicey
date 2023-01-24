@@ -12,6 +12,7 @@
   "devDependencies": {
     "@existdb/gulp-exist": "^4.3.2",
     "@existdb/gulp-replace-tmpl": "^1.0.4",
+    "@existdb/xst": "^1.2.2",
     "@semantic-release/exec": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/github": "^8.0.7",
@@ -34,7 +35,8 @@
   "scripts": {
     "test": "dotenv -- gulp install && dotenv -- mocha src/test/mocha/*.js",
     "start": "dotenv -- gulp install",
-    "build": "dotenv -- gulp build"
+    "build": "dotenv -- gulp build",
+    "info": "xst info"
   },
   "repository": {
     "type": "git",
