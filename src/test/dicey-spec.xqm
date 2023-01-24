@@ -78,7 +78,11 @@ declare
     %test:assertTrue
 function dicey-spec:random-from-array () {
     let $n := dicey:pick($dicey-spec:array-of-sequences, random-number-generator())?_item
-    return $n = $dicey-spec:array-of-sequences?*
+    let $sum-n := sum($n)
+    return array:fold-left(
+        $dicey-spec:array-of-sequences, false(),
+        function ($r, $s) { $r or $sum-n = sum($s) }
+    )
 };
 
 declare 
