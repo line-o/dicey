@@ -3,6 +3,7 @@
 const fs = require('fs')
 const expect = require('chai').expect
 const s = require('superagent')
+const { readOptionsFromEnv } = require('@existdb/gulp-exist')
 
 const testRunnerLocalPath = 'src/test/mocha/runner.xq'
 
@@ -10,24 +11,12 @@ const { name, version } = require('../../../package.json')
 const testCollection = '/test-' + name + '-' + version
 const testRunner = testCollection + '/runner.xq'
 
-const { servers } = require('../../../.existdb.json')
-const serverInfo = servers.localhost
-const { protocol, port, hostname } = new URL(serverInfo.server)
-const connectionOptions = {
-    basic_auth: {
-        user: serverInfo.user, 
-        pass: serverInfo.password
-    },
-    host: hostname,
-    port,
-    protocol,
-    path: "/exist/apps"
-}
+const connectionOptions = readOptionsFromEnv()
 
 function connection (options) {
   const protocol = options.protocol ? options.protocol : 'http:'
   const port = options.port ? ':' + options.port : ''
-  const path = options.path.startsWith('/') ? options.path : '/' + options.path
+  const path = '/exist/apps'
   const prefix = `${protocol}//${options.host}${port}${path}`
   return (request) => {
     request.url = prefix + request.url

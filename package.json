@@ -23,7 +23,8 @@
     "gulp-zip": "^5.1.0",
     "mocha": "^10.2.0",
     "semantic-release": "^20.0.4",
-    "superagent": "^8.0.8"
+    "superagent": "^8.0.8",
+    "dotenv-cli": "^7.0.0"
   },
   "author": {
     "name": "Juri Leino",
@@ -31,13 +32,23 @@
   },
   "license": "MIT",
   "scripts": {
-    "test": "gulp install && mocha src/test/mocha/*.js",
-    "start": "gulp install",
-    "build": "gulp build"
+    "test": "dotenv -- gulp install && dotenv -- mocha src/test/mocha/*.js",
+    "start": "dotenv -- gulp install",
+    "build": "dotenv -- gulp build"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/line-o/dicey",
     "license": "MIT"
+  },
+  "xar": {
+    "author": "Juri Leino",
+    "target": "dicey",
+    "description": "Just a bunch of random functions",
+    "namespace": "http://line-o.de/xq/dicey",
+    "website": "https://github.com/line-o/dicey",
+    "status": "beta",
+    "title": "dicey - just a bunch of random functions",
+    "export": "dicey.xqm"
   }
 }
